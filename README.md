@@ -1,6 +1,7 @@
 # 🚨 I AM HERE - Women's Safety & Emergency Real-time SOS System
 
 [![Firebase Live](https://img.shields.io/badge/Firebase-Live%20Console-orange?logo=firebase&style=flat-square)](https://iamhere-safety.web.app)
+[![Download APK](https://img.shields.io/badge/Download-Android%20APK%20(v1.2.0)-success?logo=android&style=flat-square)](https://iamhere-safety.web.app/iamhere-emergency.apk)
 [![Platform - Android](https://img.shields.io/badge/Platform-Android%20(Jetpack%20Compose)-green?logo=android&style=flat-square)](https://github.com/Action-kamen257/I-AM-HERE)
 [![Platform - iOS](https://img.shields.io/badge/Platform-iOS%20(SwiftUI)-black?logo=apple&style=flat-square)](https://github.com/Action-kamen257/I-AM-HERE)
 [![Backend - TypeScript](https://img.shields.io/badge/Backend-Express%20%7C%20WebSockets-blue?logo=typescript&style=flat-square)](https://github.com/Action-kamen257/I-AM-HERE)
@@ -13,8 +14,11 @@
 ## 🌐 Live Deployments & Demos
 
 - **Official Web Portal**: [https://iamhere-safety.web.app](https://iamhere-safety.web.app)
+- **Direct Android APK Download (v1.2.0)**: [https://iamhere-safety.web.app/iamhere-emergency.apk](https://iamhere-safety.web.app/iamhere-emergency.apk)
 - **Guardian Live Tracking Console**: [https://iamhere-safety.web.app/live?token=demo](https://iamhere-safety.web.app/live?token=demo)
 - **GitHub Repository**: [https://github.com/Action-kamen257/I-AM-HERE](https://github.com/Action-kamen257/I-AM-HERE)
+- **Latest GitHub Releases**: [https://github.com/Action-kamen257/I-AM-HERE/releases/latest](https://github.com/Action-kamen257/I-AM-HERE/releases/latest)
+- **Auto-Update Workflow Guide**: [docs/AUTO_UPDATE_AND_RELEASE_WORKFLOW.md](docs/AUTO_UPDATE_AND_RELEASE_WORKFLOW.md)
 
 ---
 

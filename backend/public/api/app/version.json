@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "versionCode": 3,
+  "versionName": "1.2.0",
+  "minSupportedVersionCode": 1,
+  "apkUrl": "https://github.com/Action-kamen257/I-AM-HERE/releases/download/v1.2.0/iamhere-emergency-v1.2.0.apk",
+  "latestApkUrl": "https://github.com/Action-kamen257/I-AM-HERE/releases/download/v1.2.0/iamhere-latest.apk",
+  "fileSizeBytes": 17766497,
+  "releaseNotes": "• Polished Typography & Glassmorphism\n• Live GPS Breadcrumb Streaming\n• Verified Evidence Contact Matrix\n• Automatic In-App Version Update",
+  "publishedAt": "2026-10-12T08:30:00.000Z"
+}

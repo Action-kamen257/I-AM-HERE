@@ -9,10 +9,31 @@
     ],
     "cleanUrls": true,
     "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/iamhere-emergency.apk",
+        "destination": "https://github.com/Action-kamen257/I-AM-HERE/releases/download/v1.2.0/iamhere-emergency-v1.2.0.apk",
+        "type": 302
+      },
+      {
+        "source": "/api/app/latest.apk",
+        "destination": "https://github.com/Action-kamen257/I-AM-HERE/releases/download/v1.2.0/iamhere-latest.apk",
+        "type": 302
+      },
+      {
+        "source": "/downloads/app-latest.apk",
+        "destination": "https://github.com/Action-kamen257/I-AM-HERE/releases/download/v1.2.0/iamhere-latest.apk",
+        "type": 302
+      }
+    ],
     "rewrites": [
       {
         "source": "/live",
         "destination": "/live.html"
+      },
+      {
+        "source": "/api/app/version",
+        "destination": "/api/app/version.json"
       }
     ],
     "headers": [
