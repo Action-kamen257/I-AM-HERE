@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">I AM HERE</string>
+    <string name="app_tagline">Women\'s Emergency Safety Network</string>
+    <string name="emergency_sos_title">EMERGENCY SOS</string>
+    <string name="hold_to_trigger">HOLD TO TRIGGER</string>
+    <string name="cancel_countdown">CANCEL</string>
+    <string name="tap_to_cancel">Tap to Cancel</string>
+    <string name="channel_emergency_name">Emergency SOS</string>
+    <string name="channel_emergency_desc">High priority emergency tracking alerts and sirens</string>
+
+    <!-- Statuses -->
+    <string name="status_queued">⏳ Queued</string>
+    <string name="status_sent">✓ Sent</string>
+    <string name="status_delivered">✓ Delivered</string>
+    <string name="status_seen">👁 Seen</string>
+    <string name="status_responding">🏃 Responding</string>
+    <string name="status_unavailable">✗ Delivery Unavailable</string>
+    <string name="status_failed">✗ Failed</string>
+
+    <!-- Actions & Tools -->
+    <string name="walk_with_me">Walk With Me</string>
+    <string name="check_in_safe">I Am Safe</string>
+    <string name="fake_call">Discreet Fake Call</string>
+    <string name="nearby_safe_havens">Nearby Safe Havens</string>
+    <string name="call_112_police">Call 112 Police</string>
+
+    <!-- Accessibility Descriptions -->
+    <string name="cd_sos_button">Activate Emergency Distress Signal</string>
+    <string name="cd_cancel_sos">Cancel Distress Countdown</string>
+    <string name="cd_add_contact">Add New Trusted Emergency Contact</string>
+    <string name="cd_navigate_safe_poi">Get directions to verified safe place</string>
+    <string name="cd_call_police">Direct dial 112 Emergency Services</string>
+
+    <!-- SMS Templates -->
+    <string name="sms_alert_prefix">EMERGENCY ALERT!</string>
+    <string name="sms_drill_prefix">[TEST DRILL - I AM SAFE]</string>
+    <string name="sms_duress_prefix">[URGENT DURESS ALERT]</string>
+</resources>

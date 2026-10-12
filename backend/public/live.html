@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>I AM HERE - Emergency Live Tracking</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    :root {
+      --bg-dark: #0a0b10;
+      --card-bg: #141622;
+      --card-border: #23273e;
+      --danger: #ff2d55;
+      --danger-glow: rgba(255, 45, 85, 0.4);
+      --warning: #ff9500;
+      --success: #30d158;
+      --text: #f5f5f7;
+      --text-muted: #8e8e93;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top Emergency Alert Banner */
+    .emergency-banner {
+      background: linear-gradient(90deg, #99001a, #ff2d55, #99001a);
+      background-size: 200% 100%;
+      animation: alertPulse 3s infinite ease-in-out;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 4px 20px var(--danger-glow);
+      z-index: 1000;
+    }
+
+    @keyframes alertPulse {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      animation: blink 1s infinite alternate;
+    }
+
+    @keyframes blink {
+      from { opacity: 0.3; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* Main Container */
+    .main-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 48px);
+      position: relative;
+    }
+
+    #map {
+      flex: 1;
+      height: 100%;
+      background: #111;
+    }
+
+    /* Floating Panel / Drawer */
+    .sidebar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(20, 22, 34, 0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--card-border);
+      border-radius: 20px 20px 0 0;
+      padding: 18px 20px;
+      z-index: 1000;
+      max-height: 50vh;
+      overflow-y: auto;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease;
+    }
+
+    @media (min-width: 768px) {
+      .main-container {
+        flex-direction: row;
+      }
+      .sidebar {
+        position: relative;
+        width: 420px;
+        height: 100%;
+        max-height: 100%;
+        border-top: none;
+        border-right: 1px solid var(--card-border);
+        border-radius: 0;
+      }
+    }
+
+    .victim-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .victim-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .victim-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .telemetry-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .telem-card {
+      background: #1c1f30;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .telem-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .telem-value {
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 2px;
+      color: var(--text);
+    }
+
+    /* Action Buttons */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      border: none;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-respond {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 4px 15px var(--danger-glow);
+    }
+
+    .btn-respond:hover {
+      background: #e0264b;
+      transform: translateY(-1px);
+    }
+
+    .btn-police {
+      background: #007aff;
+      color: white;
+    }
+
+    .btn-safe {
+      background: #2c2f42;
+      color: var(--text);
+      grid-column: span 2;
+    }
+
+    .btn-safe:hover {
+      background: #383c54;
+    }
+
+    /* Contacts Status Matrix */
+    .status-section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .contact-card {
+      background: #181b2a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .c-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .c-relation {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .c-badges {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .badge-sent { background: #232a3e; color: #7f9cf5; }
+    .badge-del { background: #19382b; color: #34d399; }
+    .badge-seen { background: #27223e; color: #a78bfa; }
+    .badge-resp { background: #3b2028; color: #f43f5e; border: 1px solid #f43f5e; }
+    .badge-unavail { background: #342818; color: #fbbf24; }
+
+    .pulse-marker {
+      border: 3px solid white;
+      border-radius: 50%;
+      height: 20px;
+      width: 20px;
+      position: absolute;
+      left: -10px;
+      top: -10px;
+      background: #ff2d55;
+      box-shadow: 0 0 15px #ff2d55;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="emergency-banner" id="banner">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <img src="/logo.png" alt="I AM HERE" style="width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.4);" />
+      <div><span class="pulse-dot"></span><span id="bannerText">EMERGENCY ACTIVE • LIVE LOCATION</span></div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button id="buzzerToggle" style="background: rgba(255,255,255,0.25); border: 1px solid white; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; cursor: pointer;">📳 BUZZER ON</button>
+      <div id="clock">00:00</div>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <div class="sidebar">
+      <div class="victim-header" style="align-items: center; gap: 12px;">
+        <img src="/logo.png" alt="Logo" style="width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--card-border);" />
+        <div style="flex: 1;">
+          <div class="victim-name" id="userName">User Distress Alert</div>
+          <div class="victim-sub" id="userPhone">Connecting...</div>
+        </div>
+        <div id="statusBadge" class="badge badge-resp">ACTIVE SOS</div>
+      </div>
+
+      <div class="telemetry-row">
+        <div class="telem-card">
+          <div class="telem-label">Battery</div>
+          <div class="telem-value" id="telemBattery">--%</div>
+        </div>
+        <div class="telem-card">
+          <div class="telem-label">Accuracy</div>
+          <div class="telem-value" id="telemAccuracy">-- m</div>
+        </div>
+        <div class="telem-card">
+          <div class="telem-label">Speed</div>
+          <div class="telem-value" id="telemSpeed">-- km/h</div>
+        </div>
+      </div>
+
+      <div class="actions-grid">
+        <button class="btn btn-respond" id="btnRespond">🚨 I'm On My Way</button>
+        <a href="tel:112" class="btn btn-police" style="text-decoration: none;">📞 Dial 112</a>
+        <button class="btn btn-safe" id="btnSafeNote">💬 Add Helper Note</button>
+      </div>
+
+      <div class="status-section-title">Trusted Contact Response Network</div>
+      <div id="contactsContainer">
+        <!-- Dynamic contact evidence cards -->
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    const pathParts = window.location.pathname.split('/');
+    let rawToken = pathParts[pathParts.length - 1];
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryToken = urlParams.get('token');
+    const token = (rawToken && rawToken !== 'live.html' && rawToken !== 'live') ? rawToken : (queryToken || 'demo');
+    const cid = urlParams.get('cid');
+
+    let map, marker, accuracyCircle, polyline;
+    let locationHistory = [];
+    let isDemoMode = (token === 'demo' || !token);
+
+    // Initialize Map
+    function initMap() {
+      map = L.map('map', { zoomControl: true }).setView([20.5937, 78.9629], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+
+      polyline = L.polyline([], { color: '#ff2d55', weight: 4, opacity: 0.7, dashArray: '6, 8' }).addTo(map);
+    }
+
+    initMap();
+
+    function getDemoSession() {
+      const baseLat = 18.9220 + (Math.random() - 0.5) * 0.0003;
+      const baseLng = 72.8346 + (Math.random() - 0.5) * 0.0003;
+      return {
+        id: 'demo_session_101',
+        userName: 'Ananya Sharma (Live Demo)',
+        userPhone: '+91 98765 43210',
+        status: 'ACTIVE',
+        lastLocation: {
+          latitude: baseLat,
+          longitude: baseLng,
+          accuracy: 4.2,
+          speed: 1.2 + Math.random() * 0.4,
+          batteryLevel: 84,
+          timestamp: Date.now()
+        },
+        locations: [
+          { latitude: 18.9195, longitude: 72.8322 },
+          { latitude: 18.9202, longitude: 72.8329 },
+          { latitude: 18.9210, longitude: 72.8336 },
+          { latitude: 18.9215, longitude: 72.8341 },
+          { latitude: baseLat, longitude: baseLng }
+        ],
+        contacts: [
+          {
+            contactId: 'c1',
+            name: 'Mother (Primary Guardian)',
+            relation: 'Mother',
+            phone: '+91 98765 43210',
+            deliveryState: 'DELIVERED',
+            seen: true,
+            responding: true,
+            respondingEta: '3 min',
+            notes: ['Dispatched from Home']
+          },
+          {
+            contactId: 'c2',
+            name: 'Father',
+            relation: 'Father',
+            phone: '+91 98765 43211',
+            deliveryState: 'DELIVERED',
+            seen: true,
+            responding: false
+          },
+          {
+            contactId: 'c3',
+            name: 'Sister (Pooja)',
+            relation: 'Sister',
+            phone: '+91 98765 43212',
+            deliveryState: 'SENT',
+            seen: true,
+            responding: false
+          }
+        ]
+      };
+    }
+
+    // Fetch initial state & register seen
+    async function fetchStatus() {
+      if (token === 'demo' || isDemoMode) {
+        isDemoMode = true;
+        renderSession(getDemoSession());
+        return;
+      }
+      try {
+        const url = `/api/sos/${token}${cid ? `?cid=${encodeURIComponent(cid)}` : ''}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Session not found');
+        const data = await res.json();
+        renderSession(data.session);
+      } catch (err) {
+        // Fallback to demo showcase when standalone
+        isDemoMode = true;
+        renderSession(getDemoSession());
+        console.warn('Live tracking demo mode active:', err);
+      }
+    }
+
+    function renderSession(session) {
+      if (!session) return;
+
+      document.getElementById('userName').innerText = session.userName || 'Emergency Alert';
+      document.getElementById('userPhone').innerText = session.userPhone ? `Phone: ${session.userPhone}` : 'Distress Signal';
+      
+      if (session.status === 'DURESS_CANCELLED') {
+        document.getElementById('statusBadge').className = 'badge badge-unavail';
+        document.getElementById('statusBadge').innerText = 'DURESS ALERT';
+        document.getElementById('statusBadge').style.backgroundColor = '#ff3b30';
+        document.getElementById('bannerText').innerText = '⚠️ CRITICAL: USER FORCED TO CANCEL! SILENT TRACKING IS ACTIVELY STREAMING';
+        if (buzzerEnabled) startRecipientBuzzer();
+      } else if (session.status === 'ACTIVE') {
+        if (buzzerEnabled) startRecipientBuzzer();
+      } else {
+        document.getElementById('statusBadge').className = 'badge badge-unavail';
+        document.getElementById('statusBadge').innerText = session.status;
+        document.getElementById('bannerText').innerText = `SOS ${session.status} - Live tracking concluded`;
+        stopRecipientBuzzer();
+        if (buzzerBtn) buzzerBtn.style.display = 'none';
+      }
+
+      if (session.lastLocation) {
+        const loc = session.lastLocation;
+        const latLng = [loc.latitude, loc.longitude];
+
+        document.getElementById('telemBattery').innerText = loc.batteryLevel !== undefined ? `${loc.batteryLevel}%` : 'N/A';
+        document.getElementById('telemAccuracy').innerText = loc.accuracy ? `±${Math.round(loc.accuracy)}m` : 'N/A';
+        document.getElementById('telemSpeed').innerText = loc.speed ? `${(loc.speed * 3.6).toFixed(1)} km/h` : '0 km/h';
+
+        if (!marker) {
+          const customIcon = L.divIcon({
+            className: 'custom-beacon',
+            html: '<div class="pulse-marker"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          });
+          marker = L.marker(latLng, { icon: customIcon }).addTo(map);
+          accuracyCircle = L.circle(latLng, { radius: loc.accuracy || 20, color: '#ff2d55', fillOpacity: 0.15 }).addTo(map);
+          map.setView(latLng, 16);
+        } else {
+          marker.setLatLng(latLng);
+          accuracyCircle.setLatLng(latLng);
+          accuracyCircle.setRadius(loc.accuracy || 20);
+        }
+
+        // Update trail
+        if (session.locations && session.locations.length > 0) {
+          const latLngs = session.locations.map(l => [l.latitude, l.longitude]);
+          polyline.setLatLngs(latLngs);
+        }
+      }
+
+      // Render contact evidence matrix
+      const contactsContainer = document.getElementById('contactsContainer');
+      contactsContainer.innerHTML = '';
+
+      (session.contacts || []).forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'contact-card';
+
+        let badges = '';
+        if (c.deliveryState === 'DELIVERED') {
+          badges += '<span class="badge badge-del">✓ Delivered</span>';
+        } else if (c.deliveryState === 'SENT') {
+          badges += '<span class="badge badge-sent">✓ Sent</span>';
+        } else if (c.deliveryState === 'DELIVERY_UNAVAILABLE') {
+          badges += '<span class="badge badge-unavail">✓ Sent (Carrier Del Unavail)</span>';
+        } else if (c.deliveryState === 'FAILED') {
+          badges += '<span class="badge badge-unavail">✗ Failed</span>';
+        }
+
+        if (c.seen) {
+          badges += '<span class="badge badge-seen">✓ Seen</span>';
+        }
+        if (c.responding) {
+          badges += `<span class="badge badge-resp">✓ Responding (${c.responseNote || 'Active'})</span>`;
+        }
+
+        card.innerHTML = `
+          <div>
+            <div class="c-name">${c.name}</div>
+            <div class="c-relation">${c.relationship} • ${c.phone}</div>
+          </div>
+          <div class="c-badges">${badges}</div>
+        `;
+        contactsContainer.appendChild(card);
+      });
+    }
+
+    // Contact Action: Responding
+    document.getElementById('btnRespond').addEventListener('click', async () => {
+      if (isDemoMode) {
+        alert("🚨 [DEMO] Responding status confirmed! Your location has been shared and the victim's console updated.");
+        return;
+      }
+      try {
+        const res = await fetch(`/api/sos/${token}/respond`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contactId: cid,
+            action: 'ON_MY_WAY',
+            note: "I'm on my way"
+          })
+        });
+        if (res.ok) {
+          alert("Status recorded! The user's phone has been notified that you are responding.");
+          fetchStatus();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    document.getElementById('btnSafeNote').addEventListener('click', async () => {
+      const note = prompt("Enter a brief update for this emergency alert:");
+      if (!note) return;
+      if (isDemoMode) {
+        alert(`🚨 [DEMO] Note recorded: "${note}". Broadcast to emergency dispatchers.`);
+        return;
+      }
+      try {
+        await fetch(`/api/sos/${token}/respond`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contactId: cid,
+            action: 'CUSTOM',
+            note: note
+          })
+        });
+        fetchStatus();
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    // Real-time polling fallback / WebSocket connection
+    fetchStatus();
+    setInterval(fetchStatus, 3000);
+
+    // Recipient Phone Buzzer & Vibration Engine
+    let audioContext = null;
+    let buzzerEnabled = true;
+    let buzzerInterval = null;
+
+    function buzzRecipientPhone() {
+      if (!buzzerEnabled) return;
+      if ('vibrate' in navigator) {
+        try {
+          navigator.vibrate([600, 200, 600, 200, 600, 200, 1000]);
+        } catch (e) {}
+      }
+      playEmergencyBeep();
+    }
+
+    function playEmergencyBeep() {
+      if (!buzzerEnabled) return;
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + 0.4);
+      } catch (e) {}
+    }
+
+    function startRecipientBuzzer() {
+      if (buzzerInterval) return;
+      buzzRecipientPhone();
+      buzzerInterval = setInterval(buzzRecipientPhone, 3000);
+    }
+
+    function stopRecipientBuzzer() {
+      if (buzzerInterval) {
+        clearInterval(buzzerInterval);
+        buzzerInterval = null;
+      }
+    }
+
+    const buzzerBtn = document.getElementById('buzzerToggle');
+    if (buzzerBtn) {
+      buzzerBtn.addEventListener('click', () => {
+        buzzerEnabled = !buzzerEnabled;
+        if (buzzerEnabled) {
+          buzzerBtn.innerText = '📳 BUZZER ON';
+          buzzerBtn.style.background = 'rgba(255,255,255,0.3)';
+          startRecipientBuzzer();
+        } else {
+          buzzerBtn.innerText = '🔇 BUZZER OFF';
+          buzzerBtn.style.background = 'rgba(0,0,0,0.5)';
+          stopRecipientBuzzer();
+        }
+      });
+    }
+
+    document.addEventListener('click', () => {
+      if (buzzerEnabled && !buzzerInterval) {
+        startRecipientBuzzer();
+      }
+    }, { once: true });
+
+    // Live clock
+    function updateClock() {
+      const d = new Date();
+      document.getElementById('clock').innerText = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+</body>
+</html>

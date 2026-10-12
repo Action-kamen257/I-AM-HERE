@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">आई एम हियर (I AM HERE)</string>
+    <string name="app_tagline">महिला आपातकालीन सुरक्षा नेटवर्क</string>
+    <string name="emergency_sos_title">आपातकालीन एसओएस</string>
+    <string name="hold_to_trigger">दबाकर रखें</string>
+    <string name="cancel_countdown">रद्द करें</string>
+    <string name="tap_to_cancel">रद्द करने के लिए छुएं</string>
+    <string name="channel_emergency_name">आपातकालीन अलर्ट</string>
+    <string name="channel_emergency_desc">उच्च प्राथमिकता वाले आपातकालीन स्थान अलर्ट और सायरन</string>
+
+    <!-- Statuses -->
+    <string name="status_queued">⏳ कतार में</string>
+    <string name="status_sent">✓ भेजा गया</string>
+    <string name="status_delivered">✓ पहुंच गया</string>
+    <string name="status_seen">👁 देखा गया</string>
+    <string name="status_responding">🏃 मदद आ रही है</string>
+    <string name="status_unavailable">✗ वितरण अनुपलब्ध</string>
+    <string name="status_failed">✗ विफल</string>
+
+    <!-- Actions & Tools -->
+    <string name="walk_with_me">मेरे साथ चलें (Walk With Me)</string>
+    <string name="check_in_safe">मैं सुरक्षित हूँ</string>
+    <string name="fake_call">फर्जी कॉल</string>
+    <string name="nearby_safe_havens">निकटतम सुरक्षित स्थान</string>
+    <string name="call_112_police">पुलिस 112 पर कॉल करें</string>
+
+    <!-- Accessibility Descriptions -->
+    <string name="cd_sos_button">आपातकालीन संकट संकेत सक्रिय करें</string>
+    <string name="cd_cancel_sos">संकट उलटी गिनती रद्द करें</string>
+    <string name="cd_add_contact">नया विश्वसनीय संपर्क जोड़ें</string>
+    <string name="cd_navigate_safe_poi">सुरक्षित स्थान का रास्ता देखें</string>
+    <string name="cd_call_police">112 आपातकालीन सेवा पर कॉल करें</string>
+
+    <!-- SMS Templates -->
+    <string name="sms_alert_prefix">आपातकालीन अलर्ट!</string>
+    <string name="sms_drill_prefix">[सुरक्षा अभ्यास - मैं सुरक्षित हूँ]</string>
+    <string name="sms_duress_prefix">[अति आवश्यक जबरन अलार्म अलर्ट]</string>
+</resources>
