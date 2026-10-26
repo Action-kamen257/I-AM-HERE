@@ -87,24 +87,25 @@ fun DrillScreen(onStartDrill: () -> Unit) {
     ) {
         Column {
             Text(
-                text = "SAFETY DRILL & TELEMETRY",
-                fontSize = 18.sp,
+                text = "Safety Drill",
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 1.sp,
-                color = TextGlassPrimary
+                color = TextPrimaryLight
             )
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = "Rehearse emergency protocols & monitor sensor readiness",
                 fontSize = 12.sp,
-                color = TextGlassSecondary
+                color = TextSecondaryLight
             )
         }
 
-        // Hardware Readiness Glass Card
+        // Hardware Readiness Card
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(22.dp),
-            backgroundColor = Color(0xF2121317)
+            backgroundColor = SurfaceWhite,
+            shadowElevation = 2.dp
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -121,29 +122,28 @@ fun DrillScreen(onStartDrill: () -> Unit) {
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(32.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(Color(0xFF222329))
-                                .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(10.dp)),
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(SoftBlush),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.HealthAndSafety, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.HealthAndSafety, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(18.dp))
                         }
                         Text(
                             text = "Hardware Readiness",
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextGlassPrimary
+                            color = TextPrimaryLight
                         )
                     }
 
                     GlassPill(
                         text = if (hasFineLocation && hasSms) "ALL PASS" else "CHECK",
-                        tintColor = Color.White
+                        tintColor = if (hasFineLocation && hasSms) StatusSafeGreen else StatusWarningAmber
                     )
                 }
 
-                HorizontalDivider(color = Color(0x15FFFFFF))
+                HorizontalDivider(color = BorderSubtleLight)
 
                 DiagnosticGlassRow(
                     icon = Icons.Default.LocationOn,
@@ -187,11 +187,12 @@ fun DrillScreen(onStartDrill: () -> Unit) {
             }
         }
 
-        // Safe Rehearsal Drill Glass Card
+        // Safe Rehearsal Drill Card
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(22.dp),
-            backgroundColor = Color(0xF2121317)
+            backgroundColor = SurfaceWhite,
+            shadowElevation = 2.dp
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -203,16 +204,15 @@ fun DrillScreen(onStartDrill: () -> Unit) {
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF222329))
-                            .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(12.dp)),
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(SoftBlush),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Shield,
                             contentDescription = null,
-                            tint = Color.White,
+                            tint = CoralPrimary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -221,20 +221,20 @@ fun DrillScreen(onStartDrill: () -> Unit) {
                             text = "Safe Emergency Rehearsal",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextGlassPrimary
+                            color = TextPrimaryLight
                         )
                         Text(
                             text = "Test the complete vertical slice safely",
                             fontSize = 11.sp,
-                            color = TextGlassSecondary
+                            color = TextSecondaryLight
                         )
                     }
                 }
 
                 Text(
                     text = "A test drill executes real GPS streaming and test SMS notifications without panicking contacts. All alerts are explicitly watermarked [TEST MODE - DRILL - USER IS SAFE].",
-                    fontSize = 12.sp,
-                    color = TextGlassSecondary,
+                    color = TextSecondaryLight,
+                    fontSize = 12.5.sp,
                     lineHeight = 18.sp
                 )
 
@@ -246,8 +246,7 @@ fun DrillScreen(onStartDrill: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
-                    backgroundColor = Color(0xFF222329),
-                    borderColor = Color.White,
+                    backgroundColor = CoralPrimary,
                     shape = RoundedCornerShape(18.dp)
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
@@ -288,13 +287,13 @@ private fun DiagnosticGlassRow(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = if (isPass) Color.White else TextGlassMuted,
+                tint = if (isPass) CoralPrimary else TextMutedLight,
                 modifier = Modifier.size(16.dp)
             )
             Text(
                 text = label,
-                color = TextGlassPrimary,
-                fontSize = 12.sp,
+                color = TextPrimaryLight,
+                fontSize = 12.5.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -304,7 +303,7 @@ private fun DiagnosticGlassRow(
 
         GlassPill(
             text = if (isPass) passText else failText,
-            tintColor = if (isPass) Color.White else Color(0xFFA1A1AA)
+            tintColor = if (isPass) StatusSafeGreen else StatusWarningAmber
         )
     }
 }

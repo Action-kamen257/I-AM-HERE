@@ -74,9 +74,9 @@ fun PhoneLoginScreen(
                         painter = painterResource(id = R.drawable.app_logo),
                         contentDescription = "App Logo",
                         modifier = Modifier
-                            .size(54.dp)
+                            .size(52.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(16.dp))
+                            .border(1.dp, BorderSubtleLight, RoundedCornerShape(16.dp))
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
@@ -85,14 +85,14 @@ fun PhoneLoginScreen(
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Black,
                             letterSpacing = 2.sp,
-                            color = TextGlassPrimary
+                            color = TextPrimaryLight
                         )
                         Text(
                             text = "EMERGENCY IDENTITY SETUP",
                             fontSize = 9.5.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.2.sp,
-                            color = EmergencyRed
+                            color = CoralPrimary
                         )
                     }
                 }
@@ -108,41 +108,42 @@ fun PhoneLoginScreen(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(26.dp),
-                            backgroundColor = Color(0xF2121317)
+                            backgroundColor = SurfaceWhite,
+                            shadowElevation = 4.dp
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement = Arrangement.spacedBy(14.dp)
                             ) {
                                 GlassPill(
-                                    text = "VICTIM PHONE AUTHENTICATION",
-                                    tintColor = Color.White,
+                                    text = "PHONE AUTHENTICATION",
+                                    tintColor = CoralPrimary,
                                     icon = Icons.Default.Phone
                                 )
 
                                 Text(
-                                    text = "Initialize Your Protection",
+                                    text = "Initialize Protection",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextGlassPrimary
+                                    color = TextPrimaryLight
                                 )
 
                                 Text(
                                     text = "All emergency SOS broadcasts, multi-part SMS dispatches, and live GPS streaming will operate specifically under this victim identity.",
-                                    fontSize = 12.sp,
-                                    color = TextGlassSecondary,
+                                    fontSize = 12.5.sp,
+                                    color = TextSecondaryLight,
                                     lineHeight = 17.sp
                                 )
 
-                                HorizontalDivider(color = Color(0x18FFFFFF))
+                                HorizontalDivider(color = BorderSubtleLight)
 
                                 // Full Name
                                 Text(
                                     text = "LEGAL FULL NAME",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextGlassMuted,
-                                    letterSpacing = 0.8.sp
+                                    color = TextSecondaryLight,
+                                    letterSpacing = 0.5.sp
                                 )
                                 OutlinedTextField(
                                     value = fullName,
@@ -150,16 +151,16 @@ fun PhoneLoginScreen(
                                         fullName = it
                                         errorMessage = null
                                     },
-                                    placeholder = { Text("e.g. Priya Sharma", color = TextGlassMuted, fontSize = 13.sp) },
+                                    placeholder = { Text("e.g. Priya Sharma", color = TextMutedLight, fontSize = 13.sp) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(14.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color.White,
-                                        unfocusedBorderColor = GlassBorder,
-                                        focusedTextColor = TextGlassPrimary,
-                                        unfocusedTextColor = TextGlassPrimary,
-                                        focusedContainerColor = Color(0x18FFFFFF),
-                                        unfocusedContainerColor = Color(0x0CFFFFFF)
+                                        focusedBorderColor = CoralPrimary,
+                                        unfocusedBorderColor = BorderSubtleLight,
+                                        focusedTextColor = TextPrimaryLight,
+                                        unfocusedTextColor = TextPrimaryLight,
+                                        focusedContainerColor = SurfaceLightNeutral,
+                                        unfocusedContainerColor = SurfaceLightNeutral
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -169,8 +170,8 @@ fun PhoneLoginScreen(
                                     text = "VICTIM PHONE NUMBER",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = EmergencyRed,
-                                    letterSpacing = 0.8.sp
+                                    color = CoralPrimary,
+                                    letterSpacing = 0.5.sp
                                 )
                                 OutlinedTextField(
                                     value = phoneNumber,
@@ -178,17 +179,17 @@ fun PhoneLoginScreen(
                                         phoneNumber = it
                                         errorMessage = null
                                     },
-                                    placeholder = { Text("e.g. 9876543210 or +919876543210", color = TextGlassMuted, fontSize = 13.sp) },
+                                    placeholder = { Text("e.g. 9876543210 or +919876543210", color = TextMutedLight, fontSize = 13.sp) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                     singleLine = true,
                                     shape = RoundedCornerShape(14.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = EmergencyRed,
-                                        unfocusedBorderColor = GlassBorder,
-                                        focusedTextColor = TextGlassPrimary,
-                                        unfocusedTextColor = TextGlassPrimary,
-                                        focusedContainerColor = Color(0x18FFFFFF),
-                                        unfocusedContainerColor = Color(0x0CFFFFFF)
+                                        focusedBorderColor = CoralPrimary,
+                                        unfocusedBorderColor = BorderSubtleLight,
+                                        focusedTextColor = TextPrimaryLight,
+                                        unfocusedTextColor = TextPrimaryLight,
+                                        focusedContainerColor = SurfaceLightNeutral,
+                                        unfocusedContainerColor = SurfaceLightNeutral
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -198,8 +199,8 @@ fun PhoneLoginScreen(
                                     text = "BLOOD GROUP",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextGlassMuted,
-                                    letterSpacing = 0.8.sp
+                                    color = TextSecondaryLight,
+                                    letterSpacing = 0.5.sp
                                 )
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -211,15 +212,15 @@ fun PhoneLoginScreen(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .clip(RoundedCornerShape(10.dp))
-                                                .background(if (isSelected) Color(0xFF282930) else Color(0x10FFFFFF))
-                                                .border(1.dp, if (isSelected) Color.White else Color(0x18FFFFFF), RoundedCornerShape(10.dp))
+                                                .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
+                                                .border(1.dp, if (isSelected) CoralPrimary else BorderSubtleLight, RoundedCornerShape(10.dp))
                                                 .clickable { bloodGroup = bg }
                                                 .padding(vertical = 8.dp),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Text(
                                                 text = bg,
-                                                color = if (isSelected) Color.White else TextGlassSecondary,
+                                                color = if (isSelected) Color.White else TextPrimaryLight,
                                                 fontSize = 11.sp,
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                             )
@@ -237,15 +238,15 @@ fun PhoneLoginScreen(
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .clip(RoundedCornerShape(10.dp))
-                                                .background(if (isSelected) Color(0xFF282930) else Color(0x10FFFFFF))
-                                                .border(1.dp, if (isSelected) Color.White else Color(0x18FFFFFF), RoundedCornerShape(10.dp))
+                                                .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
+                                                .border(1.dp, if (isSelected) CoralPrimary else BorderSubtleLight, RoundedCornerShape(10.dp))
                                                 .clickable { bloodGroup = bg }
                                                 .padding(vertical = 8.dp),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Text(
                                                 text = bg,
-                                                color = if (isSelected) Color.White else TextGlassSecondary,
+                                                color = if (isSelected) Color.White else TextPrimaryLight,
                                                 fontSize = 11.sp,
                                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                             )
@@ -258,8 +259,8 @@ fun PhoneLoginScreen(
                                     text = "SAFETY DEACTIVATION PIN (4 DIGITS)",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextGlassMuted,
-                                    letterSpacing = 0.8.sp
+                                    color = TextSecondaryLight,
+                                    letterSpacing = 0.5.sp
                                 )
                                 OutlinedTextField(
                                     value = cancelPin,
@@ -267,17 +268,17 @@ fun PhoneLoginScreen(
                                         if (it.length <= 4) cancelPin = it
                                         errorMessage = null
                                     },
-                                    placeholder = { Text("1234", color = TextGlassMuted, fontSize = 13.sp) },
+                                    placeholder = { Text("1234", color = TextMutedLight, fontSize = 13.sp) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                                     singleLine = true,
                                     shape = RoundedCornerShape(14.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color.White,
-                                        unfocusedBorderColor = GlassBorder,
-                                        focusedTextColor = TextGlassPrimary,
-                                        unfocusedTextColor = TextGlassPrimary,
-                                        focusedContainerColor = Color(0x18FFFFFF),
-                                        unfocusedContainerColor = Color(0x0CFFFFFF)
+                                        focusedBorderColor = CoralPrimary,
+                                        unfocusedBorderColor = BorderSubtleLight,
+                                        focusedTextColor = TextPrimaryLight,
+                                        unfocusedTextColor = TextPrimaryLight,
+                                        focusedContainerColor = SurfaceLightNeutral,
+                                        unfocusedContainerColor = SurfaceLightNeutral
                                     ),
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -312,8 +313,7 @@ fun PhoneLoginScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(52.dp),
-                                    backgroundColor = Color(0xFF222329),
-                                    borderColor = Color.White,
+                                    backgroundColor = CoralPrimary,
                                     shape = RoundedCornerShape(16.dp)
                                 ) {
                                     Text(
@@ -338,7 +338,8 @@ fun PhoneLoginScreen(
                         GlassCard(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(26.dp),
-                            backgroundColor = Color(0xF2121317)
+                            backgroundColor = SurfaceWhite,
+                            shadowElevation = 4.dp
                         ) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
@@ -347,7 +348,7 @@ fun PhoneLoginScreen(
                             ) {
                                 GlassPill(
                                     text = "VERIFY PHONE NUMBER",
-                                    tintColor = Color.White,
+                                    tintColor = CoralPrimary,
                                     icon = Icons.Default.CheckCircle
                                 )
 
@@ -355,13 +356,13 @@ fun PhoneLoginScreen(
                                     text = "Confirm Victim Phone",
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextGlassPrimary
+                                    color = TextPrimaryLight
                                 )
 
                                 Text(
                                     text = "We sent a 4-digit verification code to $phoneNumber to activate emergency telemetry.",
                                     fontSize = 13.sp,
-                                    color = TextGlassSecondary,
+                                    color = TextSecondaryLight,
                                     textAlign = TextAlign.Center,
                                     lineHeight = 18.sp
                                 )
@@ -372,17 +373,17 @@ fun PhoneLoginScreen(
                                         if (it.length <= 4) enteredOtp = it
                                         errorMessage = null
                                     },
-                                    placeholder = { Text("4-digit OTP", color = TextGlassMuted, textAlign = TextAlign.Center) },
+                                    placeholder = { Text("4-digit OTP", color = TextMutedLight, textAlign = TextAlign.Center) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     singleLine = true,
                                     shape = RoundedCornerShape(16.dp),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color.White,
-                                        unfocusedBorderColor = GlassBorder,
-                                        focusedTextColor = TextGlassPrimary,
-                                        unfocusedTextColor = TextGlassPrimary,
-                                        focusedContainerColor = Color(0x18FFFFFF),
-                                        unfocusedContainerColor = Color(0x0CFFFFFF)
+                                        focusedBorderColor = CoralPrimary,
+                                        unfocusedBorderColor = BorderSubtleLight,
+                                        focusedTextColor = TextPrimaryLight,
+                                        unfocusedTextColor = TextPrimaryLight,
+                                        focusedContainerColor = SurfaceLightNeutral,
+                                        unfocusedContainerColor = SurfaceLightNeutral
                                     ),
                                     modifier = Modifier.width(180.dp)
                                 )
@@ -405,10 +406,10 @@ fun PhoneLoginScreen(
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(50.dp),
-                                        backgroundColor = Color(0x14FFFFFF),
+                                        backgroundColor = SurfaceLightNeutral,
                                         shape = RoundedCornerShape(16.dp)
                                     ) {
-                                        Text("Back", color = TextGlassSecondary, fontSize = 13.sp)
+                                        Text("Back", color = TextSecondaryLight, fontSize = 13.sp)
                                     }
 
                                     GlassButton(
@@ -432,8 +433,7 @@ fun PhoneLoginScreen(
                                         modifier = Modifier
                                             .weight(1.4f)
                                             .height(50.dp),
-                                        backgroundColor = Color(0xFF222329),
-                                        borderColor = Color.White,
+                                        backgroundColor = CoralPrimary,
                                         shape = RoundedCornerShape(16.dp)
                                     ) {
                                         Text(

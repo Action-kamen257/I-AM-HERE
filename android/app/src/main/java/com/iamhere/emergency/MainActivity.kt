@@ -142,22 +142,23 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainAppScaffold() {
-    var selectedTab by remember { mutableIntStateOf(0) }
+    // Default to SOS tab in center (index 2)
+    var selectedTab by remember { mutableIntStateOf(2) }
     val manager = remember { EmergencyManager.getInstance() }
     val motionCountdown by manager.motionCountdown.collectAsState()
     val motionReason by manager.motionTriggerReason.collectAsState()
 
     val navItems = remember {
         listOf(
-            GlassNavItem(Icons.Default.Warning, "SOS", isEmergencyButton = true),
-            GlassNavItem(Icons.Default.People, "Circle"),
             GlassNavItem(Icons.Default.Shield, "Tools"),
+            GlassNavItem(Icons.Default.People, "Circle"),
+            GlassNavItem(Icons.Default.Warning, "SOS", isEmergencyButton = true),
             GlassNavItem(Icons.Default.HealthAndSafety, "Drill"),
             GlassNavItem(Icons.Default.Settings, "Settings")
         )
     }
 
-    GlassBackground {
+    GlassBackground(showMapCanvas = (selectedTab == 2)) {
         Scaffold(
             containerColor = Color.Transparent,
             bottomBar = {
@@ -174,10 +175,10 @@ fun MainAppScaffold() {
                     .statusBarsPadding()
             ) {
                 when (selectedTab) {
-                    0 -> SosScreen()
+                    0 -> SafetyToolsScreen()
                     1 -> ContactsScreen()
-                    2 -> SafetyToolsScreen()
-                    3 -> DrillScreen(onStartDrill = { selectedTab = 0 })
+                    2 -> SosScreen()
+                    3 -> DrillScreen(onStartDrill = { selectedTab = 2 })
                     4 -> SettingsScreen()
                 }
 
@@ -202,14 +203,14 @@ fun MotionCountdownOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xD905060A))
+            .background(Color(0x99000000))
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(26.dp),
-            backgroundColor = Color(0xF5141519)
+            shape = RoundedCornerShape(28.dp),
+            shadowElevation = 16.dp
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -223,20 +224,20 @@ fun MotionCountdownOverlay(
                 )
                 Text(
                     text = reason ?: "Vigorous Motion Detected",
-                    color = TextGlassSecondary,
+                    color = TextSecondaryLight,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = "$countdown",
-                    color = EmergencyRed,
+                    color = CoralPrimary,
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 68.sp,
+                    fontSize = 72.sp,
                     letterSpacing = (-1).sp
                 )
                 Text(
                     text = "Emergency SOS will trigger automatically in $countdown seconds.\nTap below immediately if this is a false alarm.",
-                    color = TextGlassPrimary,
+                    color = TextPrimaryLight,
                     fontSize = 13.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 18.sp
@@ -247,8 +248,7 @@ fun MotionCountdownOverlay(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
-                    backgroundColor = Color(0xFF222329),
-                    borderColor = Color.White,
+                    backgroundColor = CoralPrimary,
                     shape = RoundedCornerShape(18.dp)
                 ) {
                     Text(

@@ -35,7 +35,11 @@ firebase-debug.log*
 # IDEs & System
 .idea/
 .vscode/
+.kilo/
 *.swp
 *.swo
 .DS_Store
 Thumbs.db
+
+# Temp local device verification
+phone_screen_*.png

@@ -25,9 +25,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -38,6 +37,9 @@ import com.iamhere.emergency.data.model.Contact
 import com.iamhere.emergency.data.repository.EmergencyManager
 import com.iamhere.emergency.ui.theme.*
 
+/**
+ * SCREEN 3: CONTACTS SCREEN (Matching Master Reference UI Screen 3)
+ */
 @Composable
 fun ContactsScreen() {
     val context = LocalContext.current
@@ -102,199 +104,153 @@ fun ContactsScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .padding(horizontal = 22.dp, vertical = 12.dp)
         ) {
-            // Header Row
+            // Header Row: Reference Title "Contact"
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "TRUSTED CIRCLE",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp,
-                            color = TextGlassPrimary
-                        )
-                        Text(
-                            text = "Contacts alerted instantly with live GPS telemetry",
-                            fontSize = 12.sp,
-                            color = TextGlassSecondary
-                        )
-                    }
+                Text(
+                    text = "Contact",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimaryLight
+                )
+            }
 
-                    Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    // Add Contact Button
-                    GlassButton(
-                        onClick = {
-                            formName = ""
-                            formPhone = ""
-                            formRelation = "Mother"
-                            formIsPrimary = true
-                            formError = null
-                            editingContact = null
-                            showAddDialog = true
-                        },
-                        modifier = Modifier.size(44.dp),
-                        shape = CircleShape,
-                        backgroundColor = Color(0xFF222329),
-                        borderColor = Color.White,
-                        contentPadding = PaddingValues(0.dp)
+            // "+ Add new" Prominent Card (Master Reference UI Screen 3)
+            GlassCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        formName = ""
+                        formPhone = ""
+                        formRelation = "Mother"
+                        formIsPrimary = true
+                        formError = null
+                        editingContact = null
+                        showAddDialog = true
+                    },
+                shape = RoundedCornerShape(20.dp),
+                backgroundColor = SurfaceWhite,
+                shadowElevation = 2.dp
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(CoralPrimary),
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Add Contact",
                             tint = Color.White,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.height(14.dp))
-
-                if (contacts.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PeopleOutline,
-                                contentDescription = null,
-                                tint = TextGlassMuted,
-                                modifier = Modifier.size(48.dp)
-                            )
-                            Text(
-                                text = "No trusted contacts configured",
-                                color = TextGlassSecondary,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                text = "Tap the '+' button above to add emergency contacts",
-                                color = TextGlassMuted,
-                                fontSize = 12.sp
-                            )
-                        }
-                    }
-                } else {
-                    // Contact Glass Cards List
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        contentPadding = PaddingValues(bottom = 110.dp)
-                    ) {
-                        items(contacts, key = { it.id }) { contact ->
-                            GlassCard(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        editingContact = contact
-                                        formName = contact.name
-                                        formPhone = contact.phone
-                                        formRelation = contact.relationship
-                                        formIsPrimary = contact.isPrimary
-                                        formError = null
-                                        showAddDialog = true
-                                    },
-                                shape = RoundedCornerShape(20.dp),
-                                backgroundColor = Color(0xF2121317)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        // Monogram Avatar
-                                        Box(
-                                            modifier = Modifier
-                                                .size(44.dp)
-                                                .clip(RoundedCornerShape(14.dp))
-                                                .background(Color(0xFF222329))
-                                                .border(1.dp, Color(0x30FFFFFF), RoundedCornerShape(14.dp)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = (contact.name.firstOrNull() ?: 'U').uppercase(),
-                                                color = Color.White,
-                                                fontSize = 18.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                            ) {
-                                                Text(
-                                                    text = contact.name,
-                                                    fontSize = 15.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = TextGlassPrimary,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis
-                                                )
-                                                GlassPill(
-                                                    text = contact.relationship,
-                                                    tintColor = Color(0xFFD4D4D8)
-                                                )
-                                                if (contact.isPrimary) {
-                                                    GlassPill(
-                                                        text = "PRIMARY",
-                                                        tintColor = Color.White
-                                                    )
-                                                }
-                                            }
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                text = contact.phone,
-                                                fontSize = 13.sp,
-                                                color = TextGlassSecondary,
-                                                letterSpacing = 0.4.sp
-                                            )
-                                        }
-                                    }
-
-                                    IconButton(
-                                        onClick = { manager.removeContact(contact.id) },
-                                        modifier = Modifier.size(36.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.DeleteOutline,
-                                            contentDescription = "Delete",
-                                            tint = TextGlassMuted,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                    Column {
+                        Text(
+                            text = "Add new",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimaryLight
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Max 5 contacts (${contacts.size}/5 armed)",
+                            fontSize = 12.sp,
+                            color = TextSecondaryLight
+                        )
                     }
                 }
             }
 
-        // Centered Root Add/Edit Contact Modal Dialog
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Contacts List
+            if (contacts.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(SoftBlush),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PeopleOutline,
+                                contentDescription = null,
+                                tint = CoralPrimary,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                        Text(
+                            text = "No trusted contacts configured",
+                            color = TextPrimaryLight,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Tap 'Add new' above to configure emergency contacts",
+                            color = TextSecondaryLight,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 100.dp)
+                ) {
+                    items(contacts, key = { it.id }) { contact ->
+                        ContactRowCard(
+                            contact = contact,
+                            onEdit = {
+                                editingContact = contact
+                                formName = contact.name
+                                formPhone = contact.phone
+                                formRelation = contact.relationship
+                                formIsPrimary = contact.isPrimary
+                                formError = null
+                                showAddDialog = true
+                            },
+                            onDelete = {
+                                manager.removeContact(contact.id)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Add/Edit Contact Modal Dialog
         if (showAddDialog) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xCC000000))
+                    .background(Color(0x99000000))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
@@ -312,7 +268,7 @@ fun ContactsScreen() {
                             onClick = { /* prevent click-through */ }
                         ),
                     shape = RoundedCornerShape(26.dp),
-                    backgroundColor = Color(0xF8141519)
+                    shadowElevation = 16.dp
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -325,7 +281,7 @@ fun ContactsScreen() {
                         ) {
                             Text(
                                 text = if (editingContact != null) "Edit Trusted Contact" else "Add Trusted Contact",
-                                color = TextGlassPrimary,
+                                color = TextPrimaryLight,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -337,32 +293,32 @@ fun ContactsScreen() {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Close",
-                                    tint = Color.White,
+                                    tint = TextSecondaryLight,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
 
-                        // Full-width prominent phonebook importer
+                        // Pick from device contacts button
                         GlassButton(
                             onClick = { contactPickerLauncher.launch(null) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(44.dp),
                             shape = RoundedCornerShape(14.dp),
-                            backgroundColor = Color(0xFF222329),
-                            borderColor = Color(0x35FFFFFF)
+                            backgroundColor = SoftBlush,
+                            borderColor = SoftBlushBorder
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Contacts,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = CoralPrimary,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "Pick from Device Contacts",
-                                color = Color.White,
+                                color = CoralPrimary,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -375,16 +331,16 @@ fun ContactsScreen() {
                                 formName = it
                                 formError = null
                             },
-                            placeholder = { Text("Contact Full Name", color = TextGlassMuted, fontSize = 13.sp) },
+                            placeholder = { Text("Contact Full Name", color = TextMutedLight, fontSize = 13.sp) },
                             singleLine = true,
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.White,
-                                unfocusedBorderColor = GlassBorder,
-                                focusedTextColor = TextGlassPrimary,
-                                unfocusedTextColor = TextGlassPrimary,
-                                focusedContainerColor = Color(0x18FFFFFF),
-                                unfocusedContainerColor = Color(0x0CFFFFFF)
+                                focusedBorderColor = CoralPrimary,
+                                unfocusedBorderColor = BorderSubtleLight,
+                                focusedTextColor = TextPrimaryLight,
+                                unfocusedTextColor = TextPrimaryLight,
+                                focusedContainerColor = SurfaceLightNeutral,
+                                unfocusedContainerColor = SurfaceLightNeutral
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -396,28 +352,28 @@ fun ContactsScreen() {
                                 formPhone = it
                                 formError = null
                             },
-                            placeholder = { Text("Mobile (+91... or 10 digits)", color = TextGlassMuted, fontSize = 13.sp) },
+                            placeholder = { Text("Mobile (+91... or 10 digits)", color = TextMutedLight, fontSize = 13.sp) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             singleLine = true,
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.White,
-                                unfocusedBorderColor = GlassBorder,
-                                focusedTextColor = TextGlassPrimary,
-                                unfocusedTextColor = TextGlassPrimary,
-                                focusedContainerColor = Color(0x18FFFFFF),
-                                unfocusedContainerColor = Color(0x0CFFFFFF)
+                                focusedBorderColor = CoralPrimary,
+                                unfocusedBorderColor = BorderSubtleLight,
+                                focusedTextColor = TextPrimaryLight,
+                                unfocusedTextColor = TextPrimaryLight,
+                                focusedContainerColor = SurfaceLightNeutral,
+                                unfocusedContainerColor = SurfaceLightNeutral
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        // Relationship quick selector chips
+                        // Relationship selector
                         Text(
                             text = "RELATIONSHIP",
-                            fontSize = 10.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextGlassMuted,
-                            letterSpacing = 0.8.sp
+                            color = TextSecondaryLight,
+                            letterSpacing = 0.5.sp
                         )
 
                         Row(
@@ -431,14 +387,14 @@ fun ContactsScreen() {
                                         .weight(1f)
                                         .height(36.dp)
                                         .clip(RoundedCornerShape(10.dp))
-                                        .background(if (isSelected) Color(0xFF282930) else Color(0x10FFFFFF))
-                                        .border(1.dp, if (isSelected) Color.White else Color(0x18FFFFFF), RoundedCornerShape(10.dp))
+                                        .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
+                                        .border(1.dp, if (isSelected) CoralPrimary else BorderSubtleLight, RoundedCornerShape(10.dp))
                                         .clickable { formRelation = rel },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = rel,
-                                        color = if (isSelected) Color.White else TextGlassSecondary,
+                                        color = if (isSelected) Color.White else TextSecondaryLight,
                                         fontSize = 11.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                     )
@@ -457,14 +413,14 @@ fun ContactsScreen() {
                                         .weight(1f)
                                         .height(36.dp)
                                         .clip(RoundedCornerShape(10.dp))
-                                        .background(if (isSelected) Color(0xFF282930) else Color(0x10FFFFFF))
-                                        .border(1.dp, if (isSelected) Color.White else Color(0x18FFFFFF), RoundedCornerShape(10.dp))
+                                        .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
+                                        .border(1.dp, if (isSelected) CoralPrimary else BorderSubtleLight, RoundedCornerShape(10.dp))
                                         .clickable { formRelation = rel },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         text = rel,
-                                        color = if (isSelected) Color.White else TextGlassSecondary,
+                                        color = if (isSelected) Color.White else TextSecondaryLight,
                                         fontSize = 11.sp,
                                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                     )
@@ -479,17 +435,17 @@ fun ContactsScreen() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("Primary Emergency Contact", color = TextGlassPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                                Text("Alerted with priority escalation", color = TextGlassSecondary, fontSize = 11.sp)
+                                Text("Primary Emergency Contact", color = TextPrimaryLight, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Alerted with priority escalation", color = TextSecondaryLight, fontSize = 11.sp)
                             }
                             Switch(
                                 checked = formIsPrimary,
                                 onCheckedChange = { formIsPrimary = it },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color.White,
-                                    checkedTrackColor = Color(0xFF282930),
-                                    uncheckedThumbColor = TextGlassMuted,
-                                    uncheckedTrackColor = Color(0x18FFFFFF)
+                                    checkedTrackColor = CoralPrimary,
+                                    uncheckedThumbColor = TextMutedLight,
+                                    uncheckedTrackColor = SurfaceLightNeutral
                                 )
                             )
                         }
@@ -515,10 +471,10 @@ fun ContactsScreen() {
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(48.dp),
-                                backgroundColor = Color(0x14FFFFFF),
+                                backgroundColor = SurfaceLightNeutral,
                                 shape = RoundedCornerShape(16.dp)
                             ) {
-                                Text("Cancel", color = TextGlassSecondary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Cancel", color = TextSecondaryLight, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                             }
 
                             GlassButton(
@@ -558,8 +514,7 @@ fun ContactsScreen() {
                                 modifier = Modifier
                                     .weight(1.3f)
                                     .height(48.dp),
-                                backgroundColor = Color(0xFF222329),
-                                borderColor = Color.White,
+                                backgroundColor = CoralPrimary,
                                 shape = RoundedCornerShape(16.dp)
                             ) {
                                 Text(
@@ -571,6 +526,151 @@ fun ContactsScreen() {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Individual Contact Row Card (Master Reference UI Screen 3)
+ * Displays:
+ * - Circular avatar image/monogram
+ * - Contact Name (e.g. "Dad", "Mom", "Kevin")
+ * - Status Pill: "Safe" (green) or "Need help" (coral)
+ * - Phone icon + Phone number (e.g. 297-682-3661)
+ * - Three dots ⋮ options menu
+ */
+@Composable
+fun ContactRowCard(
+    contact: Contact,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var expandedMenu by remember { mutableStateOf(false) }
+
+    GlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        backgroundColor = SurfaceWhite,
+        shadowElevation = 2.dp
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                // Circular Avatar Monogram (Stylized with Soft Blush tone)
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(SoftBlush)
+                        .border(1.5.dp, SoftBlushBorder, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = (contact.name.firstOrNull() ?: 'U').uppercase(),
+                        color = CoralPrimary,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = contact.name,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimaryLight,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+
+                        // Status Badge: "Safe" (Green) or "Need help" (Coral) from Reference Screen 3
+                        if (contact.relationship.contains("Friend", ignoreCase = true)) {
+                            GlassPill(
+                                text = "Need help",
+                                tintColor = EmergencyRed,
+                                icon = Icons.Default.Warning
+                            )
+                        } else {
+                            GlassPill(
+                                text = "Safe",
+                                tintColor = StatusSafeGreen
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Phone,
+                            contentDescription = null,
+                            tint = TextSecondaryLight,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Text(
+                            text = contact.phone,
+                            fontSize = 13.sp,
+                            color = TextSecondaryLight,
+                            letterSpacing = 0.3.sp
+                        )
+                    }
+                }
+            }
+
+            // Three dots menu (⋮)
+            Box {
+                IconButton(
+                    onClick = { expandedMenu = true },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Options",
+                        tint = TextSecondaryLight,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = expandedMenu,
+                    onDismissRequest = { expandedMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit Contact") },
+                        onClick = {
+                            expandedMenu = false
+                            onEdit()
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.Edit, contentDescription = null, tint = CoralPrimary)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete Contact", color = EmergencyRed) },
+                        onClick = {
+                            expandedMenu = false
+                            onDelete()
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Default.DeleteOutline, contentDescription = null, tint = EmergencyRed)
+                        }
+                    )
                 }
             }
         }

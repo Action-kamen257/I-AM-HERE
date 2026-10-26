@@ -4,12 +4,12 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,13 +23,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iamhere.emergency.R
@@ -37,6 +41,8 @@ import com.iamhere.emergency.data.model.ContactAlertStatus
 import com.iamhere.emergency.data.model.DeliveryState
 import com.iamhere.emergency.data.repository.EmergencyManager
 import com.iamhere.emergency.ui.theme.*
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun SosScreen() {
@@ -66,7 +72,7 @@ fun SosScreen() {
                 }
             )
         } else if (countdown != null) {
-            CountdownOverlay(
+            ReferenceCountdownOverlay(
                 secondsLeft = countdown ?: 3,
                 onCancel = { manager.cancelCountdown() }
             )
@@ -91,41 +97,52 @@ fun SosScreen() {
             )
         }
 
-        // Cancel PIN Glass Dialog
+        // Cancel PIN Verification Dialog
         if (showPinDialog) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xD905060A))
+                    .background(Color(0x99000000))
                     .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 GlassCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(28.dp),
-                    backgroundColor = Color(0xF5141728)
+                    shadowElevation = 16.dp
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        GlassPill(
-                            text = "SAFETY VERIFICATION",
-                            tintColor = AccentInfo,
-                            icon = Icons.Default.Lock
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(SoftBlush),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = CoralPrimary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(14.dp))
+
                         Text(
                             text = "Deactivate Emergency",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextGlassPrimary
+                            color = TextPrimaryLight
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Enter your 4-digit safety PIN to deactivate the live distress broadcast.",
                             fontSize = 13.sp,
-                            color = TextGlassSecondary,
+                            color = TextSecondaryLight,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(20.dp))
@@ -136,16 +153,16 @@ fun SosScreen() {
                                 if (it.length <= 4) enteredPin = it
                                 pinError = null
                             },
-                            placeholder = { Text("Enter 4-digit PIN", color = TextGlassMuted) },
+                            placeholder = { Text("Enter 4-digit PIN", color = TextMutedLight) },
                             singleLine = true,
                             isError = pinError != null,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = EmergencyRed,
-                                unfocusedBorderColor = GlassBorder,
-                                focusedTextColor = TextGlassPrimary,
-                                unfocusedTextColor = TextGlassPrimary,
-                                focusedContainerColor = Color(0x18FFFFFF),
-                                unfocusedContainerColor = Color(0x10FFFFFF)
+                                focusedBorderColor = CoralPrimary,
+                                unfocusedBorderColor = BorderSubtleLight,
+                                focusedTextColor = TextPrimaryLight,
+                                unfocusedTextColor = TextPrimaryLight,
+                                focusedContainerColor = SurfaceLightNeutral,
+                                unfocusedContainerColor = SurfaceLightNeutral
                             ),
                             shape = RoundedCornerShape(16.dp),
                             modifier = Modifier.fillMaxWidth()
@@ -169,10 +186,10 @@ fun SosScreen() {
                             GlassButton(
                                 onClick = { showPinDialog = false },
                                 modifier = Modifier.weight(1f).height(50.dp),
-                                backgroundColor = Color(0x15FFFFFF),
+                                backgroundColor = SurfaceLightNeutral,
                                 shape = RoundedCornerShape(16.dp)
                             ) {
-                                Text("Dismiss", color = TextGlassSecondary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                Text("Dismiss", color = TextSecondaryLight, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                             }
 
                             GlassButton(
@@ -187,8 +204,7 @@ fun SosScreen() {
                                     }
                                 },
                                 modifier = Modifier.weight(1.3f).height(50.dp),
-                                backgroundColor = EmergencyRed.copy(alpha = 0.35f),
-                                borderColor = EmergencyRed,
+                                backgroundColor = CoralPrimary,
                                 shape = RoundedCornerShape(16.dp)
                             ) {
                                 Text("Confirm Safe", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
@@ -201,6 +217,9 @@ fun SosScreen() {
     }
 }
 
+/**
+ * SCREEN 1: IDLE HOME SOS (Matching Master Reference UI)
+ */
 @Composable
 private fun IdleSosContent(
     onTriggerCountdown: () -> Unit,
@@ -208,28 +227,7 @@ private fun IdleSosContent(
 ) {
     val manager = remember { EmergencyManager.getInstance() }
     val userPhone by manager.userPhoneFlow.collectAsState()
-    val userName by manager.userNameFlow.collectAsState()
-
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.07f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseScale"
-    )
-
-    val auraAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.18f,
-        targetValue = 0.32f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "auraAlpha"
-    )
+    val contactsList by manager.contacts.collectAsState()
 
     Column(
         modifier = Modifier
@@ -238,61 +236,54 @@ private fun IdleSosContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // 1. Top Header & Dynamic Status Capsule
+        // 1. Top Header Row: Status Capsule & App Brand
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Status Capsule
+            // Live Status Capsule
             Row(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(Color(0xF0121316))
-                    .border(
-                        1.dp,
-                        Brush.verticalGradient(
-                            listOf(Color(0x35FFFFFF), Color(0x0CFFFFFF))
-                        ),
-                        CircleShape
-                    )
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                    .background(SurfaceWhite)
+                    .shadow(4.dp, CircleShape, ambientColor = Color(0x0C000000))
+                    .border(1.dp, BorderSubtleLight, CircleShape)
+                    .padding(horizontal = 14.dp, vertical = 7.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(7.dp)
+                        .size(8.dp)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(StatusSafeGreen)
                 )
                 Text(
                     text = "LIVE GUARDIAN ARMED",
-                    color = TextGlassPrimary,
+                    color = TextPrimaryLight,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.6.sp,
-                    maxLines = 1,
-                    softWrap = false
+                    letterSpacing = 0.5.sp,
+                    maxLines = 1
                 )
                 Box(
                     modifier = Modifier
                         .size(3.dp)
                         .clip(CircleShape)
-                        .background(TextGlassMuted)
+                        .background(TextMutedLight)
                 )
                 Text(
                     text = "GPS ACTIVE",
-                    color = TextGlassSecondary,
+                    color = StatusSafeGreen,
                     fontSize = 10.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    softWrap = false
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // App Brand Emblem
+            // App Brand Banner
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -301,211 +292,106 @@ private fun IdleSosContent(
                     painter = painterResource(id = R.drawable.app_logo),
                     contentDescription = "I AM HERE Logo",
                     modifier = Modifier
-                        .size(54.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .border(1.dp, Color(0x45FFFFFF), RoundedCornerShape(16.dp))
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .border(1.dp, BorderSubtleLight, RoundedCornerShape(14.dp))
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
                         text = "I AM HERE",
-                        fontSize = 22.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp,
-                        color = TextGlassPrimary
+                        letterSpacing = 1.5.sp,
+                        color = TextPrimaryLight
                     )
                     Text(
                         text = "WOMEN SAFETY GUARDIAN",
-                        fontSize = 10.sp,
+                        fontSize = 9.5.sp,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.4.sp,
-                        color = EmergencyRed
+                        letterSpacing = 1.2.sp,
+                        color = CoralPrimary
                     )
-                    if (userPhone.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "PROTECTED: $userPhone",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 0.8.sp,
-                            color = TextGlassSecondary
-                        )
-                    }
                 }
             }
         }
 
-        // 2. Center Hero: The Glassmorphic Emergency SOS Orb
-        val orbInteractionSource = remember { MutableInteractionSource() }
-        val isOrbPressed by orbInteractionSource.collectIsPressedAsState()
-
-        val orbTouchScale by animateFloatAsState(
-            targetValue = if (isOrbPressed) 0.92f else 1f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            ),
-            label = "orbTouchScale"
-        )
-
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(290.dp)
-                .graphicsLayer {
-                    scaleX = orbTouchScale
-                    scaleY = orbTouchScale
-                }
+        // 2. Center Hero: Animated Alarm-Clock-to-SOS Button (Master Reference Screen 1)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            // Ambient Fluid Chromatic Aura
-            Box(
-                modifier = Modifier
-                    .size(290.dp)
-                    .scale(pulseScale)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                EmergencyRed.copy(alpha = auraAlpha),
-                                EmergencyDarkRed.copy(alpha = auraAlpha * 0.5f),
-                                Color.Transparent
-                            )
-                        )
-                    )
+            AlarmSosButton(
+                onClick = onTriggerCountdown,
+                label = "SOS",
+                subLabel = "TAP TO ALERT"
             )
 
-            // Outer Glass Ultrasonic Ripple Ring
-            Box(
-                modifier = Modifier
-                    .size(244.dp)
-                    .clip(CircleShape)
-                    .background(Color(0x10FFFFFF))
-                    .border(
-                        1.5.dp,
-                        Brush.verticalGradient(
-                            listOf(Color(0x40FFFFFF), Color(0x10FFFFFF), Color(0x05FFFFFF))
-                        ),
-                        CircleShape
-                    )
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Reference Screen Location & Instruction Typography
+            Text(
+                text = "CROWN HEIGHTS",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp,
+                color = TextPrimaryLight
             )
-
-            // Core Glass Sphere
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(196.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                EmergencyRed,
-                                Color(0xFFC2185B),
-                                Color(0xFF88001F)
-                            )
-                        )
-                    )
-                    .border(
-                        2.5.dp,
-                        Brush.verticalGradient(
-                            listOf(
-                                Color(0x80FFFFFF),
-                                Color(0x25FFFFFF),
-                                Color(0x05FFFFFF)
-                            )
-                        ),
-                        CircleShape
-                    )
-                    .clickable(
-                        interactionSource = orbInteractionSource,
-                        indication = null,
-                        onClick = onTriggerCountdown
-                    )
-            ) {
-                // Top Specular Reflection Crescent (Simulates 3D curved glass refraction)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(98.dp)
-                        .align(Alignment.TopCenter)
-                        .clip(CircleShape)
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color(0x45FFFFFF),
-                                    Color(0x15FFFFFF),
-                                    Color.Transparent
-                                )
-                            )
-                        )
-                )
-
-                // Orb Content
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "SOS",
-                        tint = Color.White,
-                        modifier = Modifier.size(38.dp)
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "SOS",
-                        color = Color.White,
-                        fontSize = 38.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp
-                    )
-                    Text(
-                        text = "PRESS TO ALERT",
-                        color = Color.White.copy(alpha = 0.9f),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Tap button to broadcast emergency",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = CoralPrimary
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "Your contact, app users nearby, and your organization will see your request help",
+                fontSize = 12.sp,
+                color = TextSecondaryLight,
+                textAlign = TextAlign.Center,
+                lineHeight = 16.sp,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
         }
 
-        // 3. Quick Action Tier
+        // 3. Quick Action Tier (112 Emergency Call & Armed Circle Status)
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            // Direct Emergency Dial: 112 Glass Button
+            // Direct 112 Dial Button
             GlassButton(
                 onClick = onQuickCall112,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp),
-                backgroundColor = Color(0xFF222329),
-                borderColor = Color(0x35FFFFFF),
+                    .height(52.dp),
+                backgroundColor = SoftBlush,
+                borderColor = SoftBlushBorder,
                 shape = RoundedCornerShape(20.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Phone,
                     contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    tint = CoralPrimary,
+                    modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = "Direct Emergency Dial: 112",
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = CoralPrimary,
                     letterSpacing = 0.3.sp
                 )
             }
 
-            // Circle Standby Peek Glass Card
-            val contactsList by manager.contacts.collectAsState()
+            // Circle Standby Card
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
-                backgroundColor = Color(0xF0121316)
+                backgroundColor = SurfaceWhite,
+                shadowElevation = 2.dp
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -516,22 +402,37 @@ private fun IdleSosContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Shield,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Text(
-                            text = "${contactsList.size} Trusted Contacts Armed",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = TextGlassPrimary
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(SoftBlush),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Shield,
+                                contentDescription = null,
+                                tint = CoralPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = "${contactsList.size} Trusted Contacts Armed",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimaryLight
+                            )
+                            Text(
+                                text = if (userPhone.isNotEmpty()) "Linked: $userPhone" else "Ready on Standby",
+                                fontSize = 11.sp,
+                                color = TextSecondaryLight
+                            )
+                        }
                     }
                     GlassPill(
                         text = "STANDBY",
-                        tintColor = Color.White
+                        tintColor = StatusSafeGreen
                     )
                 }
             }
@@ -539,76 +440,231 @@ private fun IdleSosContent(
     }
 }
 
+/**
+ * SCREEN 2: REFERENCE COUNTDOWN OVERLAY
+ * Matches Screen 2 from the master reference image:
+ * - Coral emergency background
+ * - Top countdown badge "3"
+ * - "Emergency Calling..."
+ * - "Your contact, app users nearby, and your organization will see your request help"
+ * - Concentric radar circles with contact avatars in orbit!
+ * - Clean white "I am safe" cancellation button
+ */
 @Composable
-private fun CountdownOverlay(
+private fun ReferenceCountdownOverlay(
     secondsLeft: Int,
     onCancel: () -> Unit
 ) {
+    val manager = remember { EmergencyManager.getInstance() }
+    val contacts by manager.contacts.collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xE605060A))
-            .padding(28.dp),
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        CoralPrimary,
+                        CoralPressed,
+                        EmergencyDarkRed
+                    )
+                )
+            )
+            .statusBarsPadding()
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         contentAlignment = Alignment.Center
     ) {
-        GlassCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(32.dp),
-            backgroundColor = Color(0xF0121526)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Top Section: Countdown badge & Headline
             Column(
-                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.padding(top = 16.dp)
             ) {
-                GlassPill(
-                    text = "DISTRESS TRIGGER ARMED",
-                    tintColor = EmergencyRed,
-                    icon = Icons.Default.Warning
-                )
+                // Circular White Countdown Badge (Directly from Reference Screen 2)
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .shadow(12.dp, CircleShape, ambientColor = Color(0x33000000)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "$secondsLeft",
+                        fontSize = 38.sp,
+                        fontWeight = FontWeight.Black,
+                        color = CoralPrimary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "$secondsLeft",
-                    color = EmergencyRed,
-                    fontSize = 84.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = (-2).sp
-                )
-
-                Text(
-                    text = "Dispatches emergency multi-part SMS, starts live GPS streaming, and alerts your primary circle in $secondsLeft seconds.",
-                    color = TextGlassSecondary,
-                    fontSize = 13.sp,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 19.sp
+                    text = "Emergency Calling...",
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                GlassButton(
-                    onClick = onCancel,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(58.dp),
-                    backgroundColor = Color(0x30FFFFFF),
-                    borderColor = Color(0x50FFFFFF),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "CANCEL ALERT",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        letterSpacing = 0.5.sp
-                    )
-                }
+                Text(
+                    text = "Your contact, app users nearby, and your organization will see your request help",
+                    color = Color.White.copy(alpha = 0.92f),
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 18.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            // Center Section: Concentric Radar Orbit with Contact Avatars
+            RadarNetworkView(
+                contacts = contacts.map { it.name }
+            )
+
+            // Bottom Section: White "I am safe" Button
+            GlassButton(
+                onClick = onCancel,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(58.dp)
+                    .shadow(12.dp, RoundedCornerShape(22.dp)),
+                backgroundColor = Color.White,
+                shape = RoundedCornerShape(22.dp)
+            ) {
+                Text(
+                    text = "I am safe",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimaryLight,
+                    letterSpacing = 0.4.sp
+                )
             }
         }
     }
 }
 
+/**
+ * Concentric Radar Circles with Center Beacon (•) and Orbiting Contact Avatars
+ * (Matching Screen 2 of Reference UI)
+ */
+@Composable
+fun RadarNetworkView(
+    contacts: List<String>,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "radarPulse")
+    val pulseRadius by infiniteTransition.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2200, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "radarPulseScale"
+    )
+
+    Box(
+        modifier = modifier
+            .size(260.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        // Dashed Concentric Radar Circles Canvas
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val cx = size.width / 2f
+            val cy = size.height / 2f
+
+            val stroke = Stroke(
+                width = 1.5f,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(12f, 12f), 0f)
+            )
+
+            // Inner orbit circle
+            drawCircle(
+                color = Color.White.copy(alpha = 0.35f),
+                radius = 60f * pulseRadius,
+                center = Offset(cx, cy),
+                style = stroke
+            )
+
+            // Middle orbit circle
+            drawCircle(
+                color = Color.White.copy(alpha = 0.45f),
+                radius = 100f,
+                center = Offset(cx, cy),
+                style = stroke
+            )
+
+            // Outer orbit circle
+            drawCircle(
+                color = Color.White.copy(alpha = 0.30f),
+                radius = 130f,
+                center = Offset(cx, cy),
+                style = stroke
+            )
+        }
+
+        // Center Distress Beacon (•)
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(CircleShape)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(14.dp)
+                    .clip(CircleShape)
+                    .background(CoralPrimary)
+            )
+        }
+
+        // Orbiting Contact Avatars at N, E, S, W
+        val displayContacts = if (contacts.isEmpty()) {
+            listOf("Dad", "Mom", "Kevin", "Estelle")
+        } else {
+            contacts.take(4)
+        }
+
+        val angles = listOf(-90.0, 0.0, 90.0, 180.0)
+
+        displayContacts.forEachIndexed { i, name ->
+            val angleRad = Math.toRadians(angles[i % angles.size])
+            val offsetX = (100 * cos(angleRad)).dp
+            val offsetY = (100 * sin(angleRad)).dp
+
+            Box(
+                modifier = Modifier
+                    .offset(x = offsetX, y = offsetY)
+                    .size(46.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .border(2.dp, SoftBlush, CircleShape)
+                    .shadow(6.dp, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = name.firstOrNull()?.uppercase() ?: "C",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = CoralPrimary
+                )
+            }
+        }
+    }
+}
+
+/**
+ * ACTIVE EMERGENCY DASHBOARD
+ * Live broadcasting screen with radar telemetry, live link, 112 dial, and evidence cards
+ */
 @Composable
 private fun ActiveSosDashboard(
     contactStatuses: List<ContactAlertStatus>,
@@ -622,12 +678,12 @@ private fun ActiveSosDashboard(
             .fillMaxSize()
             .padding(start = 18.dp, end = 18.dp, top = 12.dp, bottom = 90.dp)
     ) {
-        // Active Broadcasting Glass Banner
+        // Active Broadcasting Banner
         GlassCard(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(22.dp),
-            backgroundColor = EmergencyDarkRed.copy(alpha = 0.7f),
-            borderColor = EmergencyRed
+            backgroundColor = SoftBlush,
+            borderColor = SoftBlushBorder
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -635,21 +691,21 @@ private fun ActiveSosDashboard(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(12.dp)
+                        .size(14.dp)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(CoralPrimary)
                 )
                 Column {
                     Text(
                         text = "EMERGENCY ACTIVE • BROADCASTING",
-                        color = Color.White,
+                        color = EmergencyRed,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp
                     )
                     Text(
-                        text = "Streaming live GPS fixes and battery telemetry",
-                        color = Color.White.copy(alpha = 0.8f),
+                        text = "Streaming live GPS fixes • Token: ${sessionToken?.take(8) ?: "Active"}",
+                        color = TextSecondaryLight,
                         fontSize = 11.sp
                     )
                 }
@@ -666,36 +722,36 @@ private fun ActiveSosDashboard(
             GlassButton(
                 onClick = onOpenLiveUrl,
                 modifier = Modifier.weight(1f).height(48.dp),
-                backgroundColor = Color(0x20FFFFFF),
+                backgroundColor = SurfaceWhite,
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Icon(Icons.Default.Public, contentDescription = null, tint = TextGlassPrimary, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Public, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Live Map", color = TextGlassPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text("Live Map", color = TextPrimaryLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
 
             GlassButton(
                 onClick = onCall112,
                 modifier = Modifier.weight(1f).height(48.dp),
-                backgroundColor = Color(0xFF222329),
-                borderColor = Color(0x35FFFFFF),
+                backgroundColor = SoftBlush,
+                borderColor = SoftBlushBorder,
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Icon(Icons.Default.Phone, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Phone, contentDescription = null, tint = CoralPrimary, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Call 112", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text("Call 112", color = CoralPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        // Evidence-Based Contact Tracking Matrix
+        // Trusted Emergency Network Status Header
         Text(
             text = "TRUSTED EMERGENCY NETWORK STATUS",
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
-            color = TextGlassMuted,
-            letterSpacing = 1.sp,
+            color = TextSecondaryLight,
+            letterSpacing = 0.8.sp,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -711,14 +767,13 @@ private fun ActiveSosDashboard(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // "I AM SAFE" Glass Resolution Button
+        // "I AM SAFE" Resolution Button
         GlassButton(
             onClick = onRequestCancel,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            backgroundColor = Color(0xFF222329),
-            borderColor = Color.White,
+            backgroundColor = CoralPrimary,
             shape = RoundedCornerShape(20.dp)
         ) {
             Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.White)
@@ -739,7 +794,8 @@ fun ContactEvidenceGlassCard(contact: ContactAlertStatus) {
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
-        backgroundColor = Color(0x99121526)
+        backgroundColor = SurfaceWhite,
+        shadowElevation = 2.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
@@ -747,46 +803,65 @@ fun ContactEvidenceGlassCard(contact: ContactAlertStatus) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = contact.name,
-                        color = TextGlassPrimary,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "${contact.relationship} • ${contact.phone}",
-                        color = TextGlassSecondary,
-                        fontSize = 11.sp
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(SoftBlush),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = contact.name.firstOrNull()?.uppercase() ?: "C",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = CoralPrimary
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = contact.name,
+                            color = TextPrimaryLight,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "${contact.relationship} • ${contact.phone}",
+                            color = TextSecondaryLight,
+                            fontSize = 11.sp
+                        )
+                    }
                 }
 
                 // Delivery State Badges
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     when (contact.deliveryState) {
                         DeliveryState.DELIVERED -> {
-                            GlassPill("Delivered", tintColor = Color.White)
+                            GlassPill("Delivered", tintColor = StatusSafeGreen)
                         }
                         DeliveryState.SENT -> {
-                            GlassPill("Sent", tintColor = Color(0xFFD4D4D8))
+                            GlassPill("Sent", tintColor = TextSecondaryLight)
                         }
                         DeliveryState.DELIVERY_UNAVAILABLE -> {
-                            GlassPill("Sent (No Carrier PDU)", tintColor = Color(0xFFA1A1AA))
+                            GlassPill("Sent (No Carrier PDU)", tintColor = TextMutedLight)
                         }
                         DeliveryState.FAILED -> {
                             GlassPill("Failed", tintColor = EmergencyRed)
                         }
                         DeliveryState.QUEUED -> {
-                            GlassPill("Queued", tintColor = TextGlassMuted)
+                            GlassPill("Queued", tintColor = TextMutedLight)
                         }
                     }
 
                     if (contact.seen) {
-                        GlassPill("Seen", tintColor = Color.White)
+                        GlassPill("Seen", tintColor = StatusSafeGreen)
                     }
 
                     if (contact.responding) {
-                        GlassPill("Responding", tintColor = EmergencyRed)
+                        GlassPill("Responding", tintColor = CoralPrimary)
                     }
                 }
             }
@@ -794,7 +869,7 @@ fun ContactEvidenceGlassCard(contact: ContactAlertStatus) {
             if (contact.responseNote != null) {
                 Text(
                     text = "Update: \"${contact.responseNote}\"",
-                    color = Color.White,
+                    color = TextPrimaryLight,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 6.dp)

@@ -57,16 +57,16 @@ fun SafetyToolsScreen() {
         item {
             Column {
                 Text(
-                    text = "SAFETY COMPANION",
-                    fontSize = 18.sp,
+                    text = "Safety Companion",
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp,
-                    color = TextGlassPrimary
+                    color = TextPrimaryLight
                 )
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "Proactive journey tracking, safe points, and discreet deterrents",
                     fontSize = 12.sp,
-                    color = TextGlassSecondary
+                    color = TextSecondaryLight
                 )
             }
         }
@@ -76,7 +76,8 @@ fun SafetyToolsScreen() {
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
-                backgroundColor = Color(0xF2121317)
+                backgroundColor = SurfaceWhite,
+                shadowElevation = 2.dp
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -93,39 +94,38 @@ fun SafetyToolsScreen() {
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color(0xFF222329))
-                                    .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(12.dp)),
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(SoftBlush),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.DirectionsWalk,
                                     contentDescription = null,
-                                    tint = Color.White,
+                                    tint = CoralPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
                             Text(
                                 text = "Walk With Me",
-                                color = TextGlassPrimary,
+                                color = TextPrimaryLight,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
                         }
 
                         if (activeJourney != null) {
-                            GlassPill("TRACKING ACTIVE", tintColor = Color.White)
+                            GlassPill("TRACKING ACTIVE", tintColor = StatusSafeGreen)
                         } else {
-                            GlassPill("STANDBY", tintColor = TextGlassMuted)
+                            GlassPill("STANDBY", tintColor = TextSecondaryLight)
                         }
                     }
 
                     if (activeJourney == null) {
                         Text(
                             text = "Traveling or walking home alone? Start a journey timer. If you miss a safety check-in, the app alerts your primary circle automatically.",
-                            color = TextGlassSecondary,
-                            fontSize = 12.sp,
+                            color = TextSecondaryLight,
+                            fontSize = 12.5.sp,
                             lineHeight = 17.sp
                         )
 
@@ -134,8 +134,7 @@ fun SafetyToolsScreen() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
-                            backgroundColor = Color(0xFF222329),
-                            borderColor = Color.White,
+                            backgroundColor = CoralPrimary,
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Color.White)
@@ -151,13 +150,13 @@ fun SafetyToolsScreen() {
                         val session = activeJourney!!
                         Text(
                             text = "Destination: ${session.destination}",
-                            color = TextGlassPrimary,
+                            color = TextPrimaryLight,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
                         Text(
                             text = "Check-in frequency: Every ${session.checkInIntervalMinutes} mins",
-                            color = TextGlassSecondary,
+                            color = TextSecondaryLight,
                             fontSize = 12.sp
                         )
 
@@ -165,8 +164,8 @@ fun SafetyToolsScreen() {
                             GlassCard(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(18.dp),
-                                backgroundColor = EmergencyDarkRed.copy(alpha = 0.4f),
-                                borderColor = EmergencyRed
+                                backgroundColor = SoftBlush,
+                                borderColor = SoftBlushBorder
                             ) {
                                 Column(
                                     modifier = Modifier.fillMaxWidth(),
@@ -174,13 +173,12 @@ fun SafetyToolsScreen() {
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text("CHECK-IN REQUIRED", color = EmergencyRed, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text("Grace countdown: ${checkInGraceSec ?: 60}s before auto-SOS", color = TextGlassPrimary, fontSize = 12.sp)
+                                    Text("Grace countdown: ${checkInGraceSec ?: 60}s before auto-SOS", color = TextPrimaryLight, fontSize = 12.sp)
 
                                     GlassButton(
                                         onClick = { journeyManager.checkInSafe() },
                                         modifier = Modifier.fillMaxWidth().height(46.dp),
-                                        backgroundColor = Color(0xFF222329),
-                                        borderColor = Color.White,
+                                        backgroundColor = CoralPrimary,
                                         shape = RoundedCornerShape(14.dp)
                                     ) {
                                         Text("I AM SAFE (Check In)", color = Color.White, fontWeight = FontWeight.Bold)
@@ -191,11 +189,10 @@ fun SafetyToolsScreen() {
                             GlassButton(
                                 onClick = { journeyManager.checkInSafe() },
                                 modifier = Modifier.fillMaxWidth().height(46.dp),
-                                backgroundColor = Color(0xFF222329),
-                                borderColor = Color(0x35FFFFFF),
+                                backgroundColor = SurfaceLightNeutral,
                                 shape = RoundedCornerShape(14.dp)
                             ) {
-                                Text("Check In Early (I'm Safe)", color = Color.White, fontWeight = FontWeight.SemiBold)
+                                Text("Check In Early (I'm Safe)", color = TextPrimaryLight, fontWeight = FontWeight.SemiBold)
                             }
                         }
 
@@ -205,10 +202,10 @@ fun SafetyToolsScreen() {
                                 Toast.makeText(context, "Journey ended safely", Toast.LENGTH_SHORT).show()
                             },
                             modifier = Modifier.fillMaxWidth().height(46.dp),
-                            backgroundColor = Color(0x15FFFFFF),
+                            backgroundColor = SurfaceLightNeutral,
                             shape = RoundedCornerShape(14.dp)
                         ) {
-                            Text("Arrived Safely • End Journey", color = TextGlassSecondary, fontSize = 13.sp)
+                            Text("Arrived Safely • End Journey", color = TextSecondaryLight, fontSize = 13.sp)
                         }
                     }
                 }
@@ -220,7 +217,8 @@ fun SafetyToolsScreen() {
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(22.dp),
-                backgroundColor = Color(0xF2121317)
+                backgroundColor = SurfaceWhite,
+                shadowElevation = 2.dp
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -232,22 +230,21 @@ fun SafetyToolsScreen() {
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFF222329))
-                                .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(12.dp)),
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(SoftBlush),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.PhoneCallback,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = CoralPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
                         Text(
                             text = "Discreet Fake Call",
-                            color = TextGlassPrimary,
+                            color = TextPrimaryLight,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -255,12 +252,12 @@ fun SafetyToolsScreen() {
 
                     Text(
                         text = "Simulates a realistic incoming call with ringtone and audio cues to deter harassment or gracefully exit uncomfortable encounters.",
-                        color = TextGlassSecondary,
-                        fontSize = 12.sp,
+                        color = TextSecondaryLight,
+                        fontSize = 12.5.sp,
                         lineHeight = 17.sp
                     )
 
-                    Text("SELECT CALLER", color = TextGlassMuted, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
+                    Text("SELECT CALLER", color = TextSecondaryLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -272,13 +269,10 @@ fun SafetyToolsScreen() {
                                     .weight(1f)
                                     .height(38.dp)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(
-                                        if (isSelected) Color(0xFF222329)
-                                        else Color(0x10FFFFFF)
-                                    )
+                                    .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
                                     .border(
                                         1.dp,
-                                        if (isSelected) Color.White else Color(0x18FFFFFF),
+                                        if (isSelected) CoralPrimary else BorderSubtleLight,
                                         RoundedCornerShape(10.dp)
                                     )
                                     .clickable { selectedCaller = name },
@@ -287,14 +281,14 @@ fun SafetyToolsScreen() {
                                 Text(
                                     text = name,
                                     fontSize = 12.sp,
-                                    color = if (isSelected) Color.White else TextGlassSecondary,
+                                    color = if (isSelected) Color.White else TextPrimaryLight,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                 )
                             }
                         }
                     }
 
-                    Text("TRIGGER DELAY", color = TextGlassMuted, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
+                    Text("TRIGGER DELAY", color = TextSecondaryLight, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -306,13 +300,10 @@ fun SafetyToolsScreen() {
                                     .weight(1f)
                                     .height(38.dp)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(
-                                        if (isSelected) Color(0xFF222329)
-                                        else Color(0x10FFFFFF)
-                                    )
+                                    .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
                                     .border(
                                         1.dp,
-                                        if (isSelected) Color.White else Color(0x18FFFFFF),
+                                        if (isSelected) CoralPrimary else BorderSubtleLight,
                                         RoundedCornerShape(10.dp)
                                     )
                                     .clickable { selectedDelaySec = sec },
@@ -321,7 +312,7 @@ fun SafetyToolsScreen() {
                                 Text(
                                     text = label,
                                     fontSize = 12.sp,
-                                    color = if (isSelected) Color.White else TextGlassSecondary,
+                                    color = if (isSelected) Color.White else TextPrimaryLight,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                                 )
                             }
@@ -333,15 +324,15 @@ fun SafetyToolsScreen() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(14.dp))
-                                .background(Color(0xFF222329))
-                                .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(14.dp))
+                                .background(SoftBlush)
+                                .border(1.dp, SoftBlushBorder, RoundedCornerShape(14.dp))
                                 .padding(12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = "Incoming call in ${pendingCountdown ?: 0}s...",
-                                color = Color.White,
+                                color = CoralPrimary,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp
                             )
@@ -358,8 +349,7 @@ fun SafetyToolsScreen() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
-                            backgroundColor = Color(0xFF222329),
-                            borderColor = Color.White,
+                            backgroundColor = CoralPrimary,
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Icon(Icons.Default.PhoneInTalk, contentDescription = null, tint = Color.White)
@@ -375,10 +365,10 @@ fun SafetyToolsScreen() {
         item {
             Text(
                 text = "NEARBY SAFE HAVENS & EMERGENCY DESKS",
-                fontSize = 12.sp,
+                fontSize = 11.5.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextGlassPrimary,
-                letterSpacing = 1.sp
+                color = TextSecondaryLight,
+                letterSpacing = 0.8.sp
             )
         }
 
@@ -386,7 +376,8 @@ fun SafetyToolsScreen() {
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                backgroundColor = Color(0xF2121317)
+                backgroundColor = SurfaceWhite,
+                shadowElevation = 2.dp
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -406,23 +397,23 @@ fun SafetyToolsScreen() {
                                     else -> Icons.Default.Shield
                                 },
                                 contentDescription = null,
-                                tint = EmergencyRed,
+                                tint = CoralPrimary,
                                 modifier = Modifier.size(18.dp)
                             )
-                            Text(poi.name, color = TextGlassPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text(poi.name, color = TextPrimaryLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
                         Spacer(modifier = Modifier.height(2.dp))
-                        Text(poi.address, color = TextGlassSecondary, fontSize = 11.sp)
+                        Text(poi.address, color = TextSecondaryLight, fontSize = 11.sp)
                         Spacer(modifier = Modifier.height(4.dp))
-                        GlassPill("${poi.approxDistanceKm} km • 24/7 Active", tintColor = Color.White)
+                        GlassPill("${poi.approxDistanceKm} km • 24/7 Active", tintColor = StatusSafeGreen)
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         IconButton(onClick = { SafePoiRepository.openNavigation(context, poi) }) {
-                            Icon(Icons.Default.Directions, contentDescription = "Navigate", tint = Color.White)
+                            Icon(Icons.Default.Directions, contentDescription = "Navigate", tint = CoralPrimary)
                         }
                         IconButton(onClick = { SafePoiRepository.dialPhone(context, poi.phone) }) {
-                            Icon(Icons.Default.Call, contentDescription = "Call", tint = Color.White)
+                            Icon(Icons.Default.Call, contentDescription = "Call", tint = StatusSafeGreen)
                         }
                     }
                 }
@@ -434,12 +425,12 @@ fun SafetyToolsScreen() {
         }
     }
 
-    // Start Journey Glass Dialog
+    // Start Journey Dialog
     if (showStartJourneyDialog) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xCC000000))
+                .background(Color(0x99000000))
                 .clickable { showStartJourneyDialog = false }
                 .padding(20.dp),
             contentAlignment = Alignment.Center
@@ -449,32 +440,32 @@ fun SafetyToolsScreen() {
                     .fillMaxWidth()
                     .clickable(enabled = false) {},
                 shape = RoundedCornerShape(26.dp),
-                backgroundColor = Color(0xF8141519)
+                shadowElevation = 16.dp
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    Text("Start Walk With Me", color = TextGlassPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text("Start Walk With Me", color = TextPrimaryLight, fontWeight = FontWeight.Bold, fontSize = 18.sp)
 
                     OutlinedTextField(
                         value = journeyDestination,
                         onValueChange = { journeyDestination = it },
-                        placeholder = { Text("Destination (e.g. Walking Home)", color = TextGlassMuted) },
+                        placeholder = { Text("Destination (e.g. Walking Home)", color = TextMutedLight) },
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = GlassBorder,
-                            focusedTextColor = TextGlassPrimary,
-                            unfocusedTextColor = TextGlassPrimary,
-                            focusedContainerColor = Color(0x18FFFFFF),
-                            unfocusedContainerColor = Color(0x0CFFFFFF)
+                            focusedBorderColor = CoralPrimary,
+                            unfocusedBorderColor = BorderSubtleLight,
+                            focusedTextColor = TextPrimaryLight,
+                            unfocusedTextColor = TextPrimaryLight,
+                            focusedContainerColor = SurfaceLightNeutral,
+                            unfocusedContainerColor = SurfaceLightNeutral
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Text("TOTAL DURATION", fontSize = 11.sp, color = TextGlassMuted, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
+                    Text("TOTAL DURATION", fontSize = 11.sp, color = TextSecondaryLight, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -485,18 +476,18 @@ fun SafetyToolsScreen() {
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(if (isSelected) Color(0xFF222329) else Color(0x10FFFFFF))
-                                    .border(1.dp, if (isSelected) Color.White else Color(0x18FFFFFF), RoundedCornerShape(10.dp))
+                                    .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
+                                    .border(1.dp, if (isSelected) CoralPrimary else BorderSubtleLight, RoundedCornerShape(10.dp))
                                     .clickable { journeyDurationMinutes = mins }
                                     .padding(vertical = 8.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("${mins}m", color = if (isSelected) Color.White else TextGlassSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("${mins}m", color = if (isSelected) Color.White else TextPrimaryLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
 
-                    Text("CHECK-IN INTERVAL", fontSize = 11.sp, color = TextGlassMuted, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
+                    Text("CHECK-IN INTERVAL", fontSize = 11.sp, color = TextSecondaryLight, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -507,13 +498,13 @@ fun SafetyToolsScreen() {
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(if (isSelected) Color(0xFF222329) else Color(0x10FFFFFF))
-                                    .border(1.dp, if (isSelected) Color.White else Color(0x18FFFFFF), RoundedCornerShape(10.dp))
+                                    .background(if (isSelected) CoralPrimary else SurfaceLightNeutral)
+                                    .border(1.dp, if (isSelected) CoralPrimary else BorderSubtleLight, RoundedCornerShape(10.dp))
                                     .clickable { checkInIntervalMinutes = mins }
                                     .padding(vertical = 8.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("${mins}m", color = if (isSelected) Color.White else TextGlassSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("${mins}m", color = if (isSelected) Color.White else TextPrimaryLight, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -527,10 +518,10 @@ fun SafetyToolsScreen() {
                         GlassButton(
                             onClick = { showStartJourneyDialog = false },
                             modifier = Modifier.weight(1f).height(48.dp),
-                            backgroundColor = Color(0x15FFFFFF),
+                            backgroundColor = SurfaceLightNeutral,
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Text("Cancel", color = TextGlassSecondary, fontSize = 13.sp)
+                            Text("Cancel", color = TextSecondaryLight, fontSize = 13.sp)
                         }
 
                         GlassButton(
@@ -539,8 +530,7 @@ fun SafetyToolsScreen() {
                                 showStartJourneyDialog = false
                             },
                             modifier = Modifier.weight(1.3f).height(48.dp),
-                            backgroundColor = Color(0xFF222329),
-                            borderColor = Color.White,
+                            backgroundColor = CoralPrimary,
                             shape = RoundedCornerShape(16.dp)
                         ) {
                             Text("Start Tracking", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)

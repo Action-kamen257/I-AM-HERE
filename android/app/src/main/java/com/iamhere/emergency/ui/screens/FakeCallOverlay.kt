@@ -24,8 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iamhere.emergency.safety.FakeCallManager
-import com.iamhere.emergency.ui.theme.AccentSuccess
+import com.iamhere.emergency.ui.theme.StatusSafeGreen
 import com.iamhere.emergency.ui.theme.EmergencyRed
+import com.iamhere.emergency.ui.theme.CoralPrimary
 import com.iamhere.emergency.ui.theme.GlassBackground
 import com.iamhere.emergency.ui.theme.TextGlassPrimary
 import com.iamhere.emergency.ui.theme.TextGlassSecondary
@@ -100,7 +101,7 @@ fun FakeCallOverlay() {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = if (isConnected) formattedDuration else "Incoming Call...",
-                            color = if (isConnected) AccentSuccess else TextGlassSecondary,
+                            color = if (isConnected) StatusSafeGreen else TextGlassSecondary,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Medium
                         )
